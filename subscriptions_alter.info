@@ -1,0 +1,6 @@
+name = Subscriptions alter
+description = Alters <a href="https://drupal.org/project/subscriptions">subscriptions</a> module.
+package = "Subscriptions"
+core = 7.x
+dependencies[] = subscriptions
+version = "7.x-0.1"

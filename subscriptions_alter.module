@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * Implements hook_permission()
+ */
+function subscriptions_alter_permission() {
+  return array(
+    'edit all subscriptions' => array(
+      'title' => t('Edit all subscriptions'),
+      'description' => t('To edit subscriptions of all users'),
+    ),
+  );
+}
+
+/**
+ * Implement hook_menu_alter()
+ */
+function subscriptions_alter_menu_alter(&$items) {
+  $items['user/%user/subscriptions']['access callback'] = '_subscriptions_alter_access';
+  foreach (subscriptions_types() as $stype => $data) {
+    $items["user/%user/subscriptions/$stype"]['access callback'] = '_subscriptions_alter_access';
+  }
+}
+
+/**
+ * See ../subscriptions/subscriptions.module: _subscriptions_access()
+ */
+function _subscriptions_alter_access($account, $access = NULL) {
+  global $user;
+  if ($account && $account->uid) {
+    if (isset($access)) {
+      $has_access = user_access($access, $account);
+    }
+    else {
+      foreach (subscriptions_types() as $stype => $data) {
+        if (user_access($data['access'], $account)) {
+          $has_access = TRUE;
+        }
+      }
+    }
+    return (!empty($has_access) && ($account->uid == $user->uid || user_access('administer user subscriptions'))) || user_access('edit all subscriptions');
+  }
+  return FALSE;
+}
